@@ -5,6 +5,7 @@ import { ArrowRight } from "@/components/icons";
 export function Pill({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <span
+      data-reveal
       className={`inline-flex items-center gap-2 rounded-full border border-line bg-paper py-1 pr-3 pl-1 text-xs text-ink-soft shadow-[0_1px_2px_rgb(13_13_18/0.04)] ${className}`}
     >
       <span className="grid size-5 place-items-center rounded-full bg-ink">
@@ -23,6 +24,7 @@ export function Mute({ children }: { children: ReactNode }) {
 export function SectionHeading({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <h2
+      data-split
       className={`font-display text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.02] tracking-[-0.035em] text-balance ${className}`}
     >
       {children}

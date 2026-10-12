@@ -35,6 +35,7 @@ for (const [, href] of html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)) 
   css += inlined;
 }
 
+const motionInit = pick(/<script id="motion-init">([\s\S]*?)<\/script>/, "the motion-init script")[1];
 const body = pick(/<body[^>]*>([\s\S]*)<\/body>/, "<body>")[1]
   .replace(/<script\b[\s\S]*?<\/script>/g, "")
   .replace(/<link\b[^>]*>/g, "");
@@ -53,6 +54,7 @@ const enhance = outputFiles[0].text;
 // The artifact host wraps this file in its own <html>/<body>, so the root classes are applied by script.
 const page = `<title>${title}</title>
 <style>${css}</style>
+<script>${motionInit}</script>
 <script>document.documentElement.classList.add(${htmlClasses.map((c) => JSON.stringify(c)).join(",")});${
   bodyClasses.length ? `document.body.classList.add(${bodyClasses.map((c) => JSON.stringify(c)).join(",")});` : ""
 }</script>

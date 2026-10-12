@@ -104,7 +104,7 @@ export function DashboardMock({ className = "" }: { className?: string }) {
               <div key={kpi.label} className="min-w-0 rounded-xl border border-line p-2.5 @lg:p-3">
                 <p className="truncate text-[0.65rem] font-medium text-ink-soft @lg:text-[0.7rem]">{kpi.label}</p>
                 <p className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
-                  <span className="text-lg font-medium tracking-tight @lg:text-2xl">{kpi.value}</span>
+                  <span data-count className="text-lg font-medium tracking-tight tabular-nums @lg:text-2xl">{kpi.value}</span>
                   {kpi.unit && <span className="text-[0.7rem] text-mute">{kpi.unit}</span>}
                   <span className="rounded bg-good-soft px-1 text-[0.6rem] font-medium text-good">{kpi.change}</span>
                 </p>

@@ -33,14 +33,14 @@ export function AfterSync() {
             No Surprises <Mute>At</Mute> Month-End
           </SectionHeading>
         </div>
-        <p className="max-w-md text-[1.05rem] leading-relaxed text-mute lg:justify-self-end">
+        <p data-reveal className="max-w-md text-[1.05rem] leading-relaxed text-mute lg:justify-self-end">
           Reports, projections and alerts update as money moves. Your accountant gets clean books at tax time, and you
           get answers today.
         </p>
       </div>
 
       <div className="mt-14 grid items-center gap-12 lg:grid-cols-[1.25fr_1fr]">
-        <div className="min-w-0 rounded-[28px] border border-line p-2">
+        <div data-reveal className="min-w-0 rounded-[28px] border border-line p-2">
           <div className="overflow-hidden rounded-[22px] bg-ink px-3 pt-3 sm:px-5 sm:pt-5">
             <div className="max-h-[22rem] overflow-hidden rounded-t-xl sm:max-h-[26rem]">
               <DashboardMock className="rounded-b-none" />
@@ -56,7 +56,7 @@ export function AfterSync() {
           </div>
         </div>
 
-        <div className="min-w-0">
+        <div data-reveal className="min-w-0">
           <StepNumber n="04" />
           <h3 className="mt-8 text-[1.75rem] leading-tight tracking-[-0.02em] text-balance">
             Nothing Waits On The Bookkeeper
@@ -68,7 +68,7 @@ export function AfterSync() {
 
           <div className="mt-10 grid gap-4">
             {updates.map((u) => (
-              <div key={u.what} className="rounded-3xl border-[1.5px] border-dashed border-ink/70 p-4 sm:p-5">
+              <div key={u.what} data-reveal className="rounded-3xl border-[1.5px] border-dashed border-ink/70 p-4 sm:p-5">
                 <div className="flex items-center gap-2">
                   <span className={`grid size-7 shrink-0 place-items-center rounded-full text-[0.6rem] font-semibold ${u.avatarClass}`}>
                     {u.avatar}

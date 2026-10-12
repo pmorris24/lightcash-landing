@@ -6,7 +6,7 @@ import { wrap } from "@/lib/site";
 
 function Step({ n, title, children }: { n: string; title: string; children: ReactNode }) {
   return (
-    <div className="min-w-0">
+    <div data-reveal className="min-w-0">
       <StepNumber n={n} />
       <h3 className="mt-8 text-[1.6rem] leading-tight tracking-[-0.02em] text-balance">{title}</h3>
       <p className="mt-4 max-w-sm leading-relaxed text-mute">{children}</p>
@@ -15,7 +15,7 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
 }
 
 function Snippet({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`dashed min-w-0 rounded-3xl bg-cloud/60 p-4 sm:p-5 ${className}`}>{children}</div>;
+  return <div data-reveal className={`dashed min-w-0 rounded-3xl bg-cloud/60 p-4 sm:p-5 ${className}`}>{children}</div>;
 }
 
 function StatusChip({ children, tone = "good" }: { children: ReactNode; tone?: "good" | "warn" | "plain" }) {
@@ -48,7 +48,7 @@ export function HowItWorks() {
         <SectionHeading className="mt-5 max-w-3xl">
           From <Mute>Transactions</Mute> To Decisions, Automatically
         </SectionHeading>
-        <p className="mt-5 max-w-xl leading-relaxed text-mute">
+        <p data-reveal className="mt-5 max-w-xl leading-relaxed text-mute">
           Lightcash pulls in every transaction, sorts it and keeps your numbers current. You always know where you
           stand, without manual bookkeeping.
         </p>
@@ -95,7 +95,7 @@ export function HowItWorks() {
             Link your bank, cards, Stripe and payroll once. Lightcash keeps every balance and transaction in sync from
             then on.
           </Step>
-          <div className="mt-8 flex items-center gap-3 lg:mt-auto">
+          <div data-reveal className="mt-8 flex items-center gap-3 lg:mt-auto">
             <span className="grid size-8 place-items-center rounded-full bg-good text-paper">
               <Check className="size-4" />
             </span>
@@ -104,7 +104,7 @@ export function HowItWorks() {
               <span className="block text-sm text-mute">4 accounts syncing</span>
             </span>
           </div>
-          <ul className="mt-4 flex flex-wrap gap-2 text-sm">
+          <ul data-reveal className="mt-4 flex flex-wrap gap-2 text-sm">
             {["Chase", "Stripe", "Gusto", "QuickBooks"].map((name) => (
               <li key={name} className="rounded-full border border-line bg-paper px-3 py-1.5 shadow-sm">
                 {name}

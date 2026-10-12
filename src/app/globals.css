@@ -72,6 +72,20 @@ body {
   border: 1.5px dashed var(--color-dash);
 }
 
+/*
+ * Motion (src/lib/motion.ts). The layout's inline script adds .motion to <html> before first paint,
+ * so these stay hidden until GSAP animates them in. Without JavaScript nothing is hidden.
+ */
+html.motion :is([data-intro], [data-reveal], [data-split]) {
+  visibility: hidden;
+}
+
+/* Room for descenders inside the masks that headline words rise out of. */
+.split-word-mask {
+  padding: 0.08em 0.04em 0.18em;
+  margin: -0.08em -0.04em -0.18em;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-dot {
     animation: none;

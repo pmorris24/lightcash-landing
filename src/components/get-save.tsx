@@ -21,7 +21,7 @@ export function GetSave() {
       </div>
 
       <div className="mt-12 grid gap-4 md:grid-cols-2">
-        <div className="rounded-3xl border border-line p-6 sm:p-8">
+        <div data-reveal className="rounded-3xl border border-line p-6 sm:p-8">
           <p className="font-mono text-xs tracking-wider text-mute uppercase">You get</p>
           <ul className="mt-6 grid gap-5">
             {gets.map((item) => (
@@ -32,7 +32,7 @@ export function GetSave() {
             ))}
           </ul>
         </div>
-        <div className="rounded-3xl bg-cloud p-6 sm:p-8">
+        <div data-reveal className="rounded-3xl bg-cloud p-6 sm:p-8">
           <p className="font-mono text-xs tracking-wider text-mute uppercase">You save</p>
           <ul className="mt-6 grid gap-5">
             {saves.map((item) => (

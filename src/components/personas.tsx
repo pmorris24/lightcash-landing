@@ -44,7 +44,7 @@ export function Personas() {
           Lightcash Turns Scattered Accounts Into <Mute>Clear</Mute> Numbers
         </SectionHeading>
 
-        <div className="mt-8 flex max-w-full flex-wrap justify-center gap-1 rounded-2xl border border-line bg-paper p-1 shadow-[0_8px_30px_-12px_rgb(13_13_18/0.12)]">
+        <div data-reveal className="mt-8 flex max-w-full flex-wrap justify-center gap-1 rounded-2xl border border-line bg-paper p-1 shadow-[0_8px_30px_-12px_rgb(13_13_18/0.12)]">
           {personas.map(({ id, tab, icon: Icon }) => (
             <button
               key={id}
@@ -67,6 +67,7 @@ export function Personas() {
           <article
             key={id}
             data-option={id}
+            data-reveal
             data-active={id === initial}
             className="group relative isolate flex flex-col overflow-hidden rounded-3xl border border-line bg-paper p-6 transition-colors duration-300 data-[active=true]:border-transparent data-[active=true]:text-white sm:p-7"
           >

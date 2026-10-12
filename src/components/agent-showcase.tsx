@@ -11,7 +11,7 @@ const accounts = [
 
 function GlassCard({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-start gap-4 rounded-[26px] bg-glass px-5 py-5 text-white shadow-[0_20px_50px_-20px_rgb(0_0_0/0.6)] backdrop-blur-xl sm:gap-5 sm:px-7 sm:py-6">
+    <div data-reveal className="flex items-start gap-4 rounded-[26px] bg-glass px-5 py-5 text-white shadow-[0_20px_50px_-20px_rgb(0_0_0/0.6)] backdrop-blur-xl sm:gap-5 sm:px-7 sm:py-6">
       {children}
     </div>
   );
@@ -42,7 +42,7 @@ export function AgentShowcase() {
             Connect Once. <Mute>Your Numbers</Mute> Keep Up.
           </SectionHeading>
         </div>
-        <p className="max-w-md text-[1.05rem] leading-relaxed text-mute lg:justify-self-end">
+        <p data-reveal className="max-w-md text-[1.05rem] leading-relaxed text-mute lg:justify-self-end">
           Lightcash finds your accounts, selects the ones that belong to the business and keeps them in sync. You review
           once, and the agent does the routine work every day.
         </p>

@@ -24,9 +24,16 @@ export const metadata: Metadata = {
     "Live cash, projections and reports for small business owners and solo builders. No bookkeeper wait, no spreadsheets.",
 };
 
+// Hides the animated elements before first paint (see html.motion in globals.css). If the motion code
+// has not started within 3 seconds, it shows everything rather than leave the page blank.
+const motionInit = `if(!matchMedia("(prefers-reduced-motion: reduce)").matches){var h=document.documentElement;h.classList.add("motion");setTimeout(function(){if(!h.dataset.motionReady)h.classList.remove("motion")},3000)}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${brittiSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${brittiSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        <script id="motion-init" dangerouslySetInnerHTML={{ __html: motionInit }} />
+      </head>
       <body>{children}</body>
     </html>
   );

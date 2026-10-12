@@ -1,10 +1,16 @@
 export const site = {
   name: "Lightcash",
-  // TODO: point these at the real sign-up form (Tally, Typeform) and booking page (Cal.com, Calendly).
-  // Until then both buttons scroll to the closing call to action.
+  // Every "Get early access" button scrolls to the sign-up form in the closing call to action.
   earlyAccessUrl: "#early-access",
+  // TODO: point this at the real booking page (Cal.com, Calendly).
   bookCallUrl: "#early-access",
   signInUrl: "#",
+  /**
+   * Where the early-access form sends sign-ups: any endpoint that accepts a JSON POST, such as a
+   * Formspree form URL (https://formspree.io/f/<id>). The body is { name, email, role, source }.
+   * TODO: set this. While it is empty the form tells visitors sign-ups open soon and collects nothing.
+   */
+  signupEndpoint: "",
 };
 
 export const nav = [

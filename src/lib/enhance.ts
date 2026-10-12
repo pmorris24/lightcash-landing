@@ -1,10 +1,14 @@
 /**
  * Progressive enhancement for the static page. The markup is complete without it;
- * this adds the animated gradient + ASCII fields and the persona switcher.
+ * this adds the animated gradient + ASCII fields (which react to the cursor), the persona switcher,
+ * the early-access form and the page motion in src/lib/motion.ts.
  *
  * It is plain DOM code so the same module runs inside Next.js (via <Enhancer />)
  * and in the single-file preview that scripts/build-preview.mjs bundles.
  */
+
+import gsap from "gsap";
+import { mountMotion } from "@/lib/motion";
 
 type RGB = [number, number, number];
 
@@ -80,7 +84,17 @@ const PALETTES: Record<string, Palette> = {
 
 // Sparse to dense. Bright areas get the dense glyphs.
 const RAMP = " .:-*oahkbdpqwmW#M&8%B@$";
+// Glyphs flicker through these where the cursor stirs the field.
+const STIR = "$0123456789%+=#";
+// The idle drift redraws at this rate; while the cursor is stirring the field it redraws every frame.
 const FPS = 12;
+
+/** Cursor influence, in cells. */
+const REACH = 9;
+const TRAIL_LIFE = 0.7;
+const RIPPLE_LIFE = 1.4;
+
+type Mark = { x: number; y: number; born: number };
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smoothstep = (a: number, b: number, v: number) => {
@@ -119,6 +133,109 @@ function hash(x: number, y: number) {
   return s - Math.floor(s);
 }
 
+/**
+ * Tracks the cursor over a field's panel: a smoothed pointer with a strength that fades in and out,
+ * a short trail of recent positions and click ripples. `influence` reads all three for one cell.
+ */
+function createStir(panel: HTMLElement, host: HTMLElement, getCell: () => number, onActive: () => void) {
+  const pointer = { x: 0, y: 0, power: 0 };
+  const moveX = gsap.quickTo(pointer, "x", { duration: 0.3, ease: "power3" });
+  const moveY = gsap.quickTo(pointer, "y", { duration: 0.3, ease: "power3" });
+  const trail: Mark[] = [];
+  const ripples: Mark[] = [];
+  const seconds = () => performance.now() / 1000;
+
+  const local = (event: PointerEvent) => {
+    const rect = host.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  };
+
+  const onEnter = (event: PointerEvent) => {
+    const { x, y } = local(event);
+    moveX(x, x);
+    moveY(y, y);
+    gsap.to(pointer, { power: 1, duration: 0.5, ease: "power2.out", overwrite: "auto" });
+    onActive();
+  };
+  const onMove = (event: PointerEvent) => {
+    const { x, y } = local(event);
+    moveX(x);
+    moveY(y);
+    const last = trail[trail.length - 1];
+    if (!last || Math.hypot(x - last.x, y - last.y) > getCell() * 0.8) {
+      trail.push({ x, y, born: seconds() });
+      if (trail.length > 24) trail.shift();
+    }
+    onActive();
+  };
+  const onLeave = () => {
+    gsap.to(pointer, { power: 0, duration: 0.8, ease: "power2.out", overwrite: "auto" });
+  };
+  const onDown = (event: PointerEvent) => {
+    ripples.push({ ...local(event), born: seconds() });
+    if (ripples.length > 4) ripples.shift();
+    onActive();
+  };
+
+  panel.addEventListener("pointerenter", onEnter);
+  panel.addEventListener("pointermove", onMove, { passive: true });
+  panel.addEventListener("pointerleave", onLeave);
+  panel.addEventListener("pointerdown", onDown, { passive: true });
+
+  return {
+    /** True while anything is still animating, so the field keeps redrawing every frame. */
+    active(t: number) {
+      while (trail.length && t - trail[0].born > TRAIL_LIFE) trail.shift();
+      while (ripples.length && t - ripples[0].born > RIPPLE_LIFE) ripples.shift();
+      return pointer.power > 0.002 || trail.length > 0 || ripples.length > 0;
+    },
+    /** 0–1 strength of the cursor's effect at (x, y), plus the direction to push the glyph. */
+    influence(x: number, y: number, t: number, cell: number, out: number[]) {
+      const reach = cell * REACH;
+      let f = 0;
+      let px = x - pointer.x;
+      let py = y - pointer.y;
+      const d = Math.hypot(px, py);
+      if (pointer.power > 0 && d < reach) {
+        const k = 1 - d / reach;
+        f = pointer.power * k * k * (3 - 2 * k);
+      }
+      for (const mark of trail) {
+        const age = (t - mark.born) / TRAIL_LIFE;
+        const dx = x - mark.x;
+        const dy = y - mark.y;
+        const r = reach * 0.55;
+        const w = (1 - age) * Math.exp(-(dx * dx + dy * dy) / (r * r)) * 0.8;
+        if (w > f) f = w;
+      }
+      for (const ripple of ripples) {
+        const age = (t - ripple.born) / RIPPLE_LIFE;
+        const dx = x - ripple.x;
+        const dy = y - ripple.y;
+        const ring = (d: number) => (d - age * reach * 4) / (cell * 2.2);
+        const band = ring(Math.hypot(dx, dy));
+        const w = (1 - age) * Math.exp(-band * band);
+        if (w > f) {
+          f = w;
+          px = dx;
+          py = dy;
+        }
+      }
+      const len = Math.hypot(px, py) || 1;
+      out[0] = Math.min(1, f);
+      out[1] = px / len;
+      out[2] = py / len;
+    },
+    destroy() {
+      panel.removeEventListener("pointerenter", onEnter);
+      panel.removeEventListener("pointermove", onMove);
+      panel.removeEventListener("pointerleave", onLeave);
+      panel.removeEventListener("pointerdown", onDown);
+      gsap.killTweensOf(pointer);
+    },
+  };
+}
+
 function mountField(host: HTMLElement): () => void {
   const palette = PALETTES[host.dataset.field ?? ""] ?? PALETTES.dusk;
   const [haze, glyphs] = Array.from(host.querySelectorAll("canvas"));
@@ -129,6 +246,7 @@ function mountField(host: HTMLElement): () => void {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const fontFamily = getComputedStyle(host).fontFamily;
   const sample = [0, 0, 0];
+  const push = [0, 0, 0];
 
   let width = 0;
   let height = 0;
@@ -141,6 +259,16 @@ function mountField(host: HTMLElement): () => void {
   let dirty = true;
   let frame = 0;
   let last = 0;
+  let stirring = false;
+
+  // The panel the field sits in takes the pointer; the field itself ignores pointer events.
+  const panel = host.parentElement;
+  const stir =
+    reduceMotion || !panel
+      ? null
+      : createStir(panel, host, () => cell, () => {
+          stirring = true;
+        });
 
   const resize = () => {
     const rect = host.getBoundingClientRect();
@@ -161,6 +289,7 @@ function mountField(host: HTMLElement): () => void {
 
   const draw = (t: number) => {
     if (!image) return;
+    stirring = stir?.active(t) ?? false;
     const aspect = width / height;
     const data = image.data;
     glyphCtx.clearRect(0, 0, width, height);
@@ -180,21 +309,32 @@ function mountField(host: HTMLElement): () => void {
         data[i + 2] = b;
         data[i + 3] = 255;
 
-        const mask = glyphMask(u * aspect, v, t);
-        if (mask < 0.04) continue;
         const x = col * cell;
         const y = row * cell;
-        // Faint blocks behind the strongest glyph patches.
-        if (mask > 0.85 && hash(col, row) > 0.55) {
-          glyphCtx.fillStyle = `rgba(255,255,255,${0.035 + 0.03 * hash(row, col)})`;
+        // Where the cursor is, glyphs show even outside the drifting patches.
+        let stirred = 0;
+        if (stirring && stir) {
+          stir.influence(x + cell / 2, y + cell / 2, t, cell, push);
+          stirred = push[0];
+        }
+        const mask = Math.max(glyphMask(u * aspect, v, t), stirred * 0.9);
+        if (mask < 0.04) continue;
+        // Faint blocks behind the strongest glyph patches, and under the cursor.
+        if ((mask > 0.85 && hash(col, row) > 0.55) || (stirred > 0.45 && hash(row, col) > 0.5)) {
+          glyphCtx.fillStyle = `rgba(255,255,255,${0.035 + 0.03 * hash(row, col) + 0.07 * stirred})`;
           glyphCtx.fillRect(x, y, cell - 1, cell - 1);
         }
         const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-        const glyph = RAMP[Math.min(RAMP.length - 1, Math.floor(lum * RAMP.length))];
+        let glyph = RAMP[Math.min(RAMP.length - 1, Math.floor(lum * RAMP.length + stirred * 8))];
+        // Strongly stirred cells flicker through cash glyphs, about 15 times a second.
+        if (stirred > 0.3) glyph = STIR[Math.floor(hash(col + Math.floor(t * 15), row) * STIR.length)];
         if (glyph === " ") continue;
-        const tint = 0.32;
-        glyphCtx.fillStyle = `rgba(${Math.round(r + (255 - r) * tint)},${Math.round(g + (255 - g) * tint)},${Math.round(b + (255 - b) * tint)},${0.16 + 0.34 * mask})`;
-        glyphCtx.fillText(glyph, x + cell / 2, y + cell / 2 + 0.5);
+        const tint = 0.32 + 0.55 * stirred;
+        const alpha = Math.min(0.95, 0.16 + 0.34 * mask + 0.45 * stirred);
+        // Push stirred glyphs away from the cursor.
+        const shift = stirred * cell * 0.9;
+        glyphCtx.fillStyle = `rgba(${Math.round(r + (255 - r) * tint)},${Math.round(g + (255 - g) * tint)},${Math.round(b + (255 - b) * tint)},${alpha})`;
+        glyphCtx.fillText(glyph, x + cell / 2 + push[1] * shift, y + cell / 2 + 0.5 + push[2] * shift);
       }
     }
     hazeCtx.putImageData(image, 0, 0);
@@ -218,7 +358,7 @@ function mountField(host: HTMLElement): () => void {
       dirty = false;
       return;
     }
-    if (dirty || now - last >= 1000 / FPS) {
+    if (dirty || stirring || now - last >= 1000 / FPS) {
       draw(now / 1000);
       last = now;
       dirty = false;
@@ -236,6 +376,7 @@ function mountField(host: HTMLElement): () => void {
 
   return () => {
     cancelAnimationFrame(frame);
+    stir?.destroy();
     resizeObserver.disconnect();
     visibility.disconnect();
   };
@@ -259,10 +400,121 @@ function mountSwitcher(root: HTMLElement): () => void {
   return () => root.removeEventListener("click", onClick);
 }
 
+/**
+ * Early-access form: validates the email, posts the fields as JSON to the form's action and swaps in
+ * the success panel. With no action set (no endpoint configured) it says sign-ups open soon.
+ */
+function mountSignup(form: HTMLFormElement): () => void {
+  const email = form.querySelector<HTMLInputElement>('input[type="email"]');
+  const status = form.querySelector<HTMLElement>("[data-signup-status]");
+  const label = form.querySelector<HTMLElement>("[data-signup-label]");
+  const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  const done = form.parentElement?.querySelector<HTMLElement>("[data-signup-done]");
+  const endpoint = form.getAttribute("action");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const idleLabel = label?.textContent ?? "";
+
+  const say = (message: string) => {
+    if (status) status.textContent = message;
+  };
+  const shake = () => {
+    if (!reduceMotion) gsap.fromTo(form, { x: 0 }, { keyframes: { x: [-8, 7, -5, 3, 0] }, duration: 0.45, ease: "power1.out" });
+  };
+  const busy = (on: boolean) => {
+    if (button) button.disabled = on;
+    if (label) label.textContent = on ? "Joining…" : idleLabel;
+  };
+
+  const showDone = () => {
+    if (!done) return say("You’re on the list. We will email you when your early access is ready.");
+    const swap = () => {
+      form.hidden = true;
+      done.hidden = false;
+      done.setAttribute("tabindex", "-1");
+    };
+    // Move focus to the confirmation so screen readers announce it (only once it is visible).
+    const announce = () => done.focus({ preventScroll: true });
+    if (reduceMotion) {
+      swap();
+      return announce();
+    }
+    gsap
+      .timeline({ onComplete: announce })
+      .to(form, { autoAlpha: 0, y: -12, duration: 0.3, ease: "power2.in" })
+      .add(swap)
+      .fromTo(done, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "expo.out", immediateRender: false })
+      .from(done.querySelector("[data-signup-check]"), { scale: 0, rotation: -90, duration: 0.8, ease: "back.out(2)" }, "<0.1");
+  };
+
+  const onInput = () => {
+    if (email?.getAttribute("aria-invalid") === "true" && email.checkValidity()) {
+      email.removeAttribute("aria-invalid");
+      say("");
+    }
+  };
+
+  const onSubmit = async (event: SubmitEvent) => {
+    event.preventDefault();
+    if (!email) return;
+    if (!email.checkValidity()) {
+      email.setAttribute("aria-invalid", "true");
+      say(email.value ? "That email doesn’t look right. Check it and try again." : "Enter your email to get early access.");
+      email.focus();
+      shake();
+      return;
+    }
+    if (!endpoint) {
+      say("Sign-ups open soon. We’re connecting the list, so please check back shortly.");
+      return;
+    }
+
+    const data = Object.fromEntries(new FormData(form));
+    // Bots fill the hidden field; treat them as signed up and send nothing.
+    if (data._gotcha) return showDone();
+    delete data._gotcha;
+
+    busy(true);
+    say("");
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error(`Sign-up failed with ${response.status}`);
+      showDone();
+    } catch {
+      say("Something went wrong on our side. Please try again in a moment.");
+      shake();
+    } finally {
+      busy(false);
+    }
+  };
+
+  // "Get early access" links scroll here; put the cursor in the email field on desktop.
+  const onAnchor = (event: Event) => {
+    const link = (event.target as Element).closest('a[href="#early-access"]');
+    if (link && email && !form.hidden && window.matchMedia("(pointer: fine)").matches) {
+      email.focus({ preventScroll: true });
+    }
+  };
+
+  form.addEventListener("submit", onSubmit);
+  email?.addEventListener("input", onInput);
+  document.addEventListener("click", onAnchor);
+  return () => {
+    form.removeEventListener("submit", onSubmit);
+    email?.removeEventListener("input", onInput);
+    document.removeEventListener("click", onAnchor);
+  };
+}
+
 export function enhance(root: ParentNode = document): () => void {
   const cleanups = [
     ...Array.from(root.querySelectorAll<HTMLElement>("[data-field]")).map(mountField),
     ...Array.from(root.querySelectorAll<HTMLElement>("[data-switcher]")).map(mountSwitcher),
+    ...Array.from(root.querySelectorAll<HTMLFormElement>("form[data-signup]")).map(mountSignup),
+    mountMotion(root),
   ];
   return () => cleanups.forEach((cleanup) => cleanup());
 }
