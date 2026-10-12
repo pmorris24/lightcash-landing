@@ -1,4 +1,5 @@
 import { Field } from "@/components/field";
+import { Soft } from "@/components/section";
 import { SignupForm } from "@/components/signup-form";
 import { wrap } from "@/lib/site";
 
@@ -11,7 +12,7 @@ export function FinalCta() {
           data-split
           className="mx-auto max-w-3xl font-display text-[clamp(2.75rem,7vw,5rem)] leading-[0.98] tracking-[-0.04em] text-balance"
         >
-          Stop guessing. Start seeing.
+          Stop waiting on last month. <Soft>Start from today.</Soft>
         </h2>
         <p data-reveal className="mx-auto mt-6 max-w-md text-[1.15rem] leading-relaxed text-white/85">
           Your full financial picture, live, from today.

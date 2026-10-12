@@ -1,4 +1,4 @@
-import { SectionHeading } from "@/components/section";
+import { SectionHeading, Soft } from "@/components/section";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { wrap } from "@/lib/site";
 
@@ -16,7 +16,9 @@ export function Faq() {
   return (
     <section id="faq" className={`${wrap} scroll-mt-6 pb-24 sm:pb-32`}>
       <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
-        <SectionHeading>Frequently asked questions</SectionHeading>
+        <SectionHeading>
+          Before you <Soft>connect anything.</Soft>
+        </SectionHeading>
         <Accordion data-reveal type="multiple" className="border-t">
           {faqs.map(({ q, a }) => (
             <AccordionItem key={q} value={q} className="border-b">

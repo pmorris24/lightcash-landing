@@ -31,6 +31,33 @@
 
   --animate-dot: dot 1.4s ease-in-out infinite;
   --animate-marquee: marquee 32s linear infinite;
+  /* Dashes travelling along a connector. Dash patterns should repeat evenly into 14 (e.g. "2 1.5", "4 3"). */
+  --animate-flow: flow 1.6s linear infinite;
+  --animate-flash: flash 1.8s ease-out;
+  /* A dot riding a connector; the element sets its own offset-path. */
+  --animate-travel: travel 2.8s ease-in-out infinite;
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -14;
+    }
+  }
+
+  @keyframes travel {
+    from {
+      offset-distance: 0%;
+    }
+    to {
+      offset-distance: 100%;
+    }
+  }
+
+  /* A row that just arrived: starts green and fades to nothing. */
+  @keyframes flash {
+    from {
+      background-color: var(--color-good-soft);
+    }
+  }
 
   @keyframes marquee {
     to {
@@ -112,6 +139,57 @@ html.motion :is([data-intro], [data-reveal], [data-split]) {
   visibility: hidden;
 }
 
+/*
+ * Architecture diagram (src/components/architecture.tsx). Connectors set pathLength="100", so a dash of
+ * "16 100" travelling from 16 to -100 is one pulse of light crossing the whole line.
+ */
+@keyframes light-pulse {
+  from {
+    stroke-dashoffset: 16;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+/* Light running down a connector on small screens. */
+@keyframes drop {
+  to {
+    transform: translateY(5rem);
+  }
+}
+
+/* A ledger row landing. */
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* A processing step lighting up and staying lit. */
+@keyframes stage {
+  from {
+    background-color: rgb(255 255 255 / 0.08);
+    color: rgb(255 255 255 / 0.5);
+  }
+  to {
+    background-color: var(--color-peri-deep);
+    color: #fff;
+  }
+}
+
+/* A card that just received new numbers. */
+@keyframes received {
+  0% {
+    box-shadow: 0 0 0 0 rgb(91 108 240 / 0.45);
+    border-color: var(--color-peri-deep);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgb(91 108 240 / 0);
+  }
+}
+
 /* Room for descenders inside the masks that headline words rise out of. */
 .split-word-mask {
   padding: 0.08em 0.04em 0.18em;
@@ -119,7 +197,10 @@ html.motion :is([data-intro], [data-reveal], [data-split]) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-dot {
+  .animate-dot,
+  .animate-flow,
+  .animate-flash,
+  .animate-travel {
     animation: none;
   }
 }

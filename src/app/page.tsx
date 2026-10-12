@@ -1,3 +1,4 @@
+import { Architecture } from "@/components/architecture";
 import { Audience } from "@/components/audience";
 import { Enhancer } from "@/components/enhancer";
 import { Faq } from "@/components/faq";
@@ -17,6 +18,7 @@ export default function Home() {
         <Problem />
         <HowItWorks />
         <Features />
+        <Architecture />
         <Audience />
         <Testimonial />
         <Faq />

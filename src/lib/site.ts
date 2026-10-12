@@ -15,6 +15,7 @@ export const site = {
 export const nav = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Features", href: "#features" },
+  { label: "Under the hood", href: "#architecture" },
   { label: "Who it’s for", href: "#who-its-for" },
   { label: "FAQ", href: "#faq" },
 ];

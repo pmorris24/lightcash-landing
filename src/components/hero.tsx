@@ -3,6 +3,7 @@ import { Field } from "@/components/field";
 import { ArrowRight, SignIn } from "@/components/icons";
 import { IntegrationsMarquee } from "@/components/integrations-marquee";
 import { Logo } from "@/components/logo";
+import { Soft } from "@/components/section";
 import { Button } from "@/components/ui/button";
 import { nav, site } from "@/lib/site";
 
@@ -44,11 +45,11 @@ export function Hero() {
             data-intro="title"
             className="font-display text-[clamp(3rem,8.4vw,6rem)] leading-[0.95] tracking-[-0.04em] text-balance"
           >
-            Your finances,
+            Your <Soft>finances,</Soft>
             <br />
             at the speed <span className="whitespace-nowrap">of light.</span>
           </h1>
-          <p data-intro="copy" className="mt-7 max-w-xl text-[1.1rem] leading-relaxed text-balance text-ink-soft">
+          <p data-intro="copy" className="mt-7 max-w-2xl text-[1.1rem] leading-relaxed text-balance text-ink-soft">
             Lightcash gives you a live view of your cash, sensible projections of where you’re heading, and every
             report you need, without a bookkeeper in the loop.
           </p>
@@ -71,11 +72,12 @@ export function Hero() {
 
         {/* Scrolling first slides this up into view while the hero is pinned (motion.ts). */}
         <div data-rise className="relative">
-          <div data-intro="product" className="relative mx-auto mt-14 w-full max-w-5xl px-3 sm:mt-16 sm:px-8">
-            <DashboardMock className="[mask-image:linear-gradient(to_bottom,black_45%,transparent_80%)]" />
+          {/* The whole dashboard shows (no fade), since every view in it is clickable. */}
+          <div data-intro="product" className="relative mx-auto mt-14 w-full max-w-6xl px-3 sm:mt-16 sm:px-8">
+            <DashboardMock />
           </div>
 
-          <div data-intro="logos" className="relative -mt-20 pb-12 text-center text-white sm:-mt-28 sm:pb-16">
+          <div data-intro="logos" className="relative pt-12 pb-12 text-center text-white sm:pt-16 sm:pb-16">
             <p className="px-4 text-[0.95rem] text-white/85">Connects to the tools you already use:</p>
             <div className="mt-6 text-white/95">
               <IntegrationsMarquee />

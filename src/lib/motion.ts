@@ -1,7 +1,7 @@
 /**
  * Page motion. The focal moment is the hero: the headline rises word by word and, as "at the speed of
  * light" lands, a beam of light sweeps across the hero's ASCII field. Everything else is quieter and
- * explains something: the lag timeline plays out, the projection draws in, a new transaction lands.
+ * explains something: the projection draws in, a new transaction lands.
  *
  * Elements opt in with data attributes. An inline script in the layout hides the intro, split and reveal
  * elements (html.motion) until this runs, so nothing flashes before it animates in:
@@ -9,7 +9,6 @@
  *   data-split   heading whose words rise out of a mask when it scrolls into view
  *   data-reveal  block that fades up when it scrolls into view (batched, so a list staggers)
  *   data-count   number that counts up from zero, keeping its prefix, separators and decimals
- *   data-lag     the problem section's two timelines (data-lag-line, data-moment="0–1")
  *   data-draw    SVG clip rect that uncovers a chart's series left to right
  *   data-feed    transaction rows; the first one arrives as a new transaction
  */
@@ -126,19 +125,6 @@ export function mountMotion(root: ParentNode = document): () => void {
       start: "top 90%",
       once: true,
       onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.9, ease: EASE, stagger: 0.1, overwrite: true }),
-    });
-
-    // Problem: both lines draw on one clock; each moment lights up when its line reaches it.
-    q("[data-lag]").forEach((diagram) => {
-      const clock = 2.6;
-      const lag = gsap.timeline({ scrollTrigger: { trigger: diagram, start: "top 75%", once: true } });
-      lag.fromTo(diagram.querySelectorAll("[data-lag-line]"), { scaleX: 0 }, { scaleX: 1, duration: clock, ease: "none" }, 0);
-      diagram.querySelectorAll<HTMLElement>("[data-moment]").forEach((moment) => {
-        const at = Number(moment.dataset.moment) * clock;
-        lag
-          .fromTo(moment, { autoAlpha: 0.25 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }, at)
-          .fromTo(moment.firstElementChild, { scale: 0.4 }, { scale: 1, duration: 0.5, ease: "back.out(2)" }, at);
-      });
     });
 
     // How it works, step 3: the projection draws in from today.

@@ -11,6 +11,14 @@ export function SectionHeading({ children, className = "" }: { children: ReactNo
   );
 }
 
+/**
+ * A word or phrase inside a heading set in the heading's own colour at half strength, so the line
+ * reads in two tones: the statement in full ink, then the follow-through soft.
+ */
+export function Soft({ children }: { children: ReactNode }) {
+  return <span className="opacity-50">{children}</span>;
+}
+
 /** Numbered step marker for the real process sequence (connect, see, look ahead). */
 export function StepNumber({ n }: { n: string }) {
   return (

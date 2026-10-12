@@ -1,6 +1,6 @@
 import { Field } from "@/components/field";
 import { ArrowRight, Store, User } from "@/components/icons";
-import { SectionHeading } from "@/components/section";
+import { SectionHeading, Soft } from "@/components/section";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { site, wrap } from "@/lib/site";
@@ -26,7 +26,7 @@ const initial = "teams";
 export function Audience() {
   return (
     <section id="who-its-for" className={`${wrap} scroll-mt-6 pb-24 sm:pb-32`}>
-      <SectionHeading className="max-w-3xl">Made for people who’d rather be building.</SectionHeading>
+      <SectionHeading className="max-w-3xl">Run the business. <Soft>Let Lightcash run the books.</Soft></SectionHeading>
 
       <div data-switcher className="mt-14 grid gap-4 md:grid-cols-2">
         {audiences.map(({ id, icon: Icon, title, body }) => (
