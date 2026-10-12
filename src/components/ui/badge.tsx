@@ -21,6 +21,8 @@ const badgeVariants = cva(
         // Lightcash status chips.
         success: "bg-good-soft text-good",
         warning: "bg-warn-soft text-warn",
+        ember: "bg-ember/10 text-ember",
+        peri: "bg-peri-deep/10 text-peri-deep",
       },
     },
     defaultVariants: {

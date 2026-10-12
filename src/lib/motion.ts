@@ -9,7 +9,7 @@
  *   data-split   heading whose words rise out of a mask when it scrolls into view
  *   data-reveal  block that fades up when it scrolls into view (batched, so a list staggers)
  *   data-count   number that counts up from zero, keeping its prefix, separators and decimals
- *   data-lag     the problem section's month (data-playhead, data-lag-line, data-moment / data-pulse="0–1")
+ *   data-lag     the problem section's two timelines (data-lag-line, data-moment="0–1")
  *   data-draw    SVG clip rect that uncovers a chart's series left to right
  *   data-feed    transaction rows; the first one arrives as a new transaction
  */
@@ -99,26 +99,16 @@ export function mountMotion(root: ParentNode = document): () => void {
       onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.9, ease: EASE, stagger: 0.1, overwrite: true }),
     });
 
-    // Problem: the month plays out on one clock. A playhead sweeps across both rows, the blind spot and
-    // the live line grow behind it, and each moment and live update lights up as the playhead reaches it.
+    // Problem: both lines draw on one clock; each moment lights up when its line reaches it.
     q("[data-lag]").forEach((diagram) => {
-      const month = 3.2;
-      const lag = gsap.timeline({ scrollTrigger: { trigger: diagram, start: "top 70%", once: true } });
-      const playhead = diagram.querySelector("[data-playhead]");
-      lag
-        .set(playhead, { autoAlpha: 1 }, 0)
-        .fromTo(playhead, { xPercent: 0 }, { xPercent: 100, duration: month, ease: "none" }, 0)
-        .to(playhead, { autoAlpha: 0, duration: 0.4 }, month)
-        .fromTo(diagram.querySelectorAll("[data-lag-line]"), { scaleX: 0 }, { scaleX: 1, duration: month, ease: "none" }, 0);
-      diagram.querySelectorAll<HTMLElement>("[data-pulse]").forEach((pulse) => {
-        lag.fromTo(pulse, { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(3)" }, Number(pulse.dataset.pulse) * month);
-      });
+      const clock = 2.6;
+      const lag = gsap.timeline({ scrollTrigger: { trigger: diagram, start: "top 75%", once: true } });
+      lag.fromTo(diagram.querySelectorAll("[data-lag-line]"), { scaleX: 0 }, { scaleX: 1, duration: clock, ease: "none" }, 0);
       diagram.querySelectorAll<HTMLElement>("[data-moment]").forEach((moment) => {
-        const at = Number(moment.dataset.moment) * month;
-        lag.fromTo(moment, { autoAlpha: 0.2 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }, at);
-        if (moment.firstElementChild) {
-          lag.fromTo(moment.firstElementChild, { scale: 0.3 }, { scale: 1, duration: 0.5, ease: "back.out(2)" }, at);
-        }
+        const at = Number(moment.dataset.moment) * clock;
+        lag
+          .fromTo(moment, { autoAlpha: 0.25 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }, at)
+          .fromTo(moment.firstElementChild, { scale: 0.4 }, { scale: 1, duration: 0.5, ease: "back.out(2)" }, at);
       });
     });
 
