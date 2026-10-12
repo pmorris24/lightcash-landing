@@ -1,10 +1,8 @@
 /**
- * Progressive enhancement for the static page. The markup is complete without it;
- * this adds the animated gradient + ASCII fields (which react to the cursor), the persona switcher,
- * the sign-up form and the page motion in src/lib/motion.ts.
- *
- * It is plain DOM code so the same module runs inside Next.js (via <Enhancer />)
- * and in the single-file preview that scripts/build-preview.mjs bundles.
+ * Progressive enhancement for the static page, run once by <Enhancer /> after hydration. The markup is
+ * complete without it; this adds the animated gradient + ASCII fields (which react to the cursor), the
+ * audience card switcher and the page motion in src/lib/motion.ts. Interactive form and FAQ controls are
+ * React components (shadcn/ui) instead.
  */
 
 import gsap from "gsap";
@@ -423,120 +421,10 @@ function mountSwitcher(root: HTMLElement): () => void {
   };
 }
 
-/**
- * Sign-up form: validates the email, posts the fields as JSON to the form's action and swaps in
- * the success panel. With no action set (no endpoint configured) it says sign-ups open soon.
- */
-function mountSignup(form: HTMLFormElement): () => void {
-  const email = form.querySelector<HTMLInputElement>('input[type="email"]');
-  const status = form.querySelector<HTMLElement>("[data-signup-status]");
-  const label = form.querySelector<HTMLElement>("[data-signup-label]");
-  const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-  const done = form.parentElement?.querySelector<HTMLElement>("[data-signup-done]");
-  const endpoint = form.getAttribute("action");
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const idleLabel = label?.textContent ?? "";
-
-  const say = (message: string) => {
-    if (status) status.textContent = message;
-  };
-  const shake = () => {
-    if (!reduceMotion) gsap.fromTo(form, { x: 0 }, { keyframes: { x: [-8, 7, -5, 3, 0] }, duration: 0.45, ease: "power1.out" });
-  };
-  const busy = (on: boolean) => {
-    if (button) button.disabled = on;
-    if (label) label.textContent = on ? "Joining…" : idleLabel;
-  };
-
-  const showDone = () => {
-    if (!done) return say("You’re in. We’ll email you to get your accounts connected.");
-    const swap = () => {
-      form.hidden = true;
-      done.hidden = false;
-      done.setAttribute("tabindex", "-1");
-    };
-    // Move focus to the confirmation so screen readers announce it (only once it is visible).
-    const announce = () => done.focus({ preventScroll: true });
-    if (reduceMotion) {
-      swap();
-      return announce();
-    }
-    gsap
-      .timeline({ onComplete: announce })
-      .to(form, { autoAlpha: 0, y: -12, duration: 0.3, ease: "power2.in" })
-      .add(swap)
-      .fromTo(done, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "expo.out", immediateRender: false })
-      .from(done.querySelector("[data-signup-check]"), { scale: 0, rotation: -90, duration: 0.8, ease: "back.out(2)" }, "<0.1");
-  };
-
-  const onInput = () => {
-    if (email?.getAttribute("aria-invalid") === "true" && email.checkValidity()) {
-      email.removeAttribute("aria-invalid");
-      say("");
-    }
-  };
-
-  const onSubmit = async (event: SubmitEvent) => {
-    event.preventDefault();
-    if (!email) return;
-    if (!email.checkValidity()) {
-      email.setAttribute("aria-invalid", "true");
-      say(email.value ? "That email doesn’t look right. Check it and try again." : "Enter your email to get started.");
-      email.focus();
-      shake();
-      return;
-    }
-    if (!endpoint) {
-      say("Sign-ups open soon. We’re connecting the list, so please check back shortly.");
-      return;
-    }
-
-    const data = Object.fromEntries(new FormData(form));
-    // Bots fill the hidden field; treat them as signed up and send nothing.
-    if (data._gotcha) return showDone();
-    delete data._gotcha;
-
-    busy(true);
-    say("");
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error(`Sign-up failed with ${response.status}`);
-      showDone();
-    } catch {
-      say("Something went wrong on our side. Please try again in a moment.");
-      shake();
-    } finally {
-      busy(false);
-    }
-  };
-
-  // "Get started free" links scroll here; put the cursor in the email field on desktop.
-  const onAnchor = (event: Event) => {
-    const link = (event.target as Element).closest('a[href="#get-started"]');
-    if (link && email && !form.hidden && window.matchMedia("(pointer: fine)").matches) {
-      email.focus({ preventScroll: true });
-    }
-  };
-
-  form.addEventListener("submit", onSubmit);
-  email?.addEventListener("input", onInput);
-  document.addEventListener("click", onAnchor);
-  return () => {
-    form.removeEventListener("submit", onSubmit);
-    email?.removeEventListener("input", onInput);
-    document.removeEventListener("click", onAnchor);
-  };
-}
-
 export function enhance(root: ParentNode = document): () => void {
   const cleanups = [
     ...Array.from(root.querySelectorAll<HTMLElement>("[data-field]")).map(mountField),
     ...Array.from(root.querySelectorAll<HTMLElement>("[data-switcher]")).map(mountSwitcher),
-    ...Array.from(root.querySelectorAll<HTMLFormElement>("form[data-signup]")).map(mountSignup),
     mountMotion(root),
   ];
   return () => cleanups.forEach((cleanup) => cleanup());

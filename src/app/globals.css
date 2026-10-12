@@ -1,8 +1,16 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* The site is light only; shadcn's dark: classes only apply under an explicit .dark ancestor. */
+@custom-variant dark (&:is(.dark *));
 
 /*
- * Layout: a light editorial page (white ground, serif display, dashed product cards)
+ * Layout: a light editorial page (white ground, Britti Sans display, dashed product cards)
  * broken up by photographic gradient panels with an ASCII overlay and dark glass cards.
+ *
+ * Components in src/components/ui are shadcn/ui (Radix). Their semantic tokens (--primary, --muted,
+ * --border...) are defined at the bottom of this file in terms of this palette.
  */
 @theme {
   --color-paper: #ffffff;
@@ -39,8 +47,29 @@
   --font-display: var(--font-britti-sans), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-britti-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-britti-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-display);
   /* The ASCII texture on the gradient panels keeps a true monospace. */
   --font-ascii: var(--font-geist-mono), ui-monospace, Menlo, monospace;
+
+  /* shadcn/ui semantic colors. */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -61,35 +90,6 @@ body {
 ::selection {
   background: rgb(154 165 255 / 0.45);
   color: var(--color-ink);
-}
-
-/* FAQ answers open and close smoothly where the browser can animate to height: auto. */
-@supports (interpolate-size: allow-keywords) {
-  :root {
-    interpolate-size: allow-keywords;
-  }
-
-  .faq::details-content {
-    block-size: 0;
-    overflow-y: clip;
-    transition:
-      block-size 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-      content-visibility 0.4s allow-discrete;
-  }
-
-  .faq[open]::details-content {
-    block-size: auto;
-  }
-}
-
-/* Film grain over the gradient panels. */
-@utility grain {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.22;
-  mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* The dashed lavender frame around product snippets. */
@@ -115,8 +115,33 @@ html.motion :is([data-intro], [data-reveal], [data-split]) {
   .animate-dot {
     animation: none;
   }
+}
 
-  .faq::details-content {
-    transition: none;
+/* shadcn/ui tokens, mapped onto the palette above. */
+:root {
+  --radius: 0.75rem;
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-paper);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-paper);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-ink);
+  --primary-foreground: var(--color-paper);
+  --secondary: var(--color-cloud);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-cloud);
+  --muted-foreground: var(--color-mute);
+  --accent: var(--color-cloud);
+  --accent-foreground: var(--color-ink);
+  --destructive: #c2412b;
+  --border: var(--color-line);
+  --input: var(--color-line);
+  --ring: var(--color-peri-deep);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
 }

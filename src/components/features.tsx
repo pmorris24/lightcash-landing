@@ -1,5 +1,5 @@
 import { DashboardMock } from "@/components/dashboard-mock";
-import { SectionHeading } from "@/components/ui";
+import { SectionHeading } from "@/components/section";
 import { wrap } from "@/lib/site";
 
 const features = [

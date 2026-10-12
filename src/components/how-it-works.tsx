@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { CashChart } from "@/components/cash-chart";
 import { Check } from "@/components/icons";
-import { SectionHeading, StepNumber } from "@/components/ui";
+import { SectionHeading, StepNumber } from "@/components/section";
+import { Badge } from "@/components/ui/badge";
 import { wrap } from "@/lib/site";
 
 // Example data for the step visuals.
@@ -35,7 +36,7 @@ function DotLoader() {
 
 function Visual({ children, label }: { children: ReactNode; label: string }) {
   return (
-    <div role="img" aria-label={label} className="dashed flex h-72 flex-col justify-center overflow-hidden rounded-3xl bg-cloud/60 p-4 sm:p-5">
+    <div role="img" aria-label={label} className="dashed flex h-76 flex-col justify-center overflow-hidden rounded-3xl bg-cloud/60 p-4 sm:p-5">
       {children}
     </div>
   );
@@ -75,13 +76,13 @@ export function HowItWorks() {
                       <span className="block text-sm text-mute">{a.detail}</span>
                     </span>
                     {a.connected ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-good-soft px-2.5 py-0.5 text-xs font-medium text-good">
-                        <Check className="size-3" /> Connected
-                      </span>
+                      <Badge variant="success" className="h-6 px-2.5">
+                        <Check /> Connected
+                      </Badge>
                     ) : (
-                      <span className="inline-flex items-center gap-2 rounded-full border border-line px-2.5 py-1 text-xs font-medium text-ink-soft">
+                      <Badge variant="outline" className="h-6 gap-2 px-2.5 text-ink-soft">
                         <DotLoader /> Connecting
-                      </span>
+                      </Badge>
                     )}
                   </li>
                 ))}
@@ -99,9 +100,9 @@ export function HowItWorks() {
             <Visual label="Transactions arriving as they happen, each one already categorized.">
               <div className="flex items-center justify-between px-1 text-sm">
                 <span className="font-medium">Transactions</span>
-                <span className="inline-flex items-center gap-1.5 text-good">
-                  <span className="size-2 rounded-full bg-good" /> Live
-                </span>
+                <Badge variant="success" className="h-6 gap-1.5 px-2.5">
+                  <span className="size-1.5 rounded-full bg-good" /> Live
+                </Badge>
               </div>
               <ul className="mt-3 overflow-hidden rounded-2xl border border-line bg-paper">
                 {feed.map((t, i) => (

@@ -1,4 +1,5 @@
 import { Field } from "@/components/field";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { wrap } from "@/lib/site";
 
 export function Testimonial() {
@@ -13,9 +14,9 @@ export function Testimonial() {
           <p>“Lightcash saved us thousands in bookkeeping costs and hours of work every month.”</p>
         </blockquote>
         <figcaption data-reveal className="mt-10 flex items-center justify-center gap-3 text-[0.95rem]">
-          <span className="grid size-11 place-items-center rounded-full bg-ink font-medium text-paper" aria-hidden="true">
-            I
-          </span>
+          <Avatar className="size-11 after:hidden" aria-hidden="true">
+            <AvatarFallback className="bg-ink text-base font-medium text-paper">I</AvatarFallback>
+          </Avatar>
           <span className="text-left leading-tight">
             <span className="block font-medium">Ilonna</span>
             <span className="block text-ink-soft">Head of Operations at Lightdash</span>

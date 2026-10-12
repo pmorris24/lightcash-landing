@@ -1,8 +1,8 @@
 import { DashboardMock } from "@/components/dashboard-mock";
 import { Field } from "@/components/field";
-import { SignIn } from "@/components/icons";
+import { ArrowRight, SignIn } from "@/components/icons";
 import { Logo } from "@/components/logo";
-import { ButtonLink } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { nav, site } from "@/lib/site";
 
 export function Hero() {
@@ -26,19 +26,15 @@ export function Hero() {
             ))}
           </ul>
           <div className="ml-auto flex items-center gap-2">
-            <a
-              href={site.signInUrl}
-              className="hidden h-10 items-center gap-2 rounded-full border border-white/70 bg-white/80 px-4 text-sm backdrop-blur sm:inline-flex"
-            >
-              Sign in
-              <SignIn className="size-4" />
-            </a>
-            <a
-              href={site.getStartedUrl}
-              className="inline-flex h-10 items-center rounded-full bg-ink px-4 text-sm font-medium text-paper transition-colors hover:bg-ink-soft"
-            >
-              Get started free
-            </a>
+            <Button asChild variant="frosted" size="pill-sm" className="max-sm:hidden">
+              <a href={site.signInUrl}>
+                Sign in
+                <SignIn />
+              </a>
+            </Button>
+            <Button asChild size="pill-sm">
+              <a href={site.getStartedUrl}>Get started free</a>
+            </Button>
           </div>
         </nav>
 
@@ -57,12 +53,15 @@ export function Hero() {
           </p>
 
           <div data-intro="actions" className="mt-9 flex flex-wrap justify-center gap-2.5">
-            <ButtonLink href={site.getStartedUrl} arrow>
-              Get started free
-            </ButtonLink>
-            <ButtonLink href="#how-it-works" variant="light">
-              See how it works
-            </ButtonLink>
+            <Button asChild size="pill">
+              <a href={site.getStartedUrl}>
+                Get started free
+                <ArrowRight />
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="pill">
+              <a href="#how-it-works">See how it works</a>
+            </Button>
           </div>
           <p data-intro="tagline" className="mt-5 text-sm text-ink-soft">
             {site.tagline}

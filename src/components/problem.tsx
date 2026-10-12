@@ -1,4 +1,4 @@
-import { SectionHeading } from "@/components/ui";
+import { SectionHeading } from "@/components/section";
 import { wrap } from "@/lib/site";
 
 type Moment = { at: number; label: string; tone?: "late" | "live" };

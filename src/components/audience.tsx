@@ -1,6 +1,8 @@
 import { Field } from "@/components/field";
 import { ArrowRight, Store, User } from "@/components/icons";
-import { SectionHeading } from "@/components/ui";
+import { SectionHeading } from "@/components/section";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { site, wrap } from "@/lib/site";
 
 const audiences = [
@@ -28,12 +30,12 @@ export function Audience() {
 
       <div data-switcher className="mt-14 grid gap-4 md:grid-cols-2">
         {audiences.map(({ id, icon: Icon, title, body }) => (
-          <article
+          <Card
             key={id}
             data-option={id}
             data-active={id === initial}
             data-reveal
-            className="group relative isolate flex min-h-80 flex-col overflow-hidden rounded-3xl border border-line bg-paper p-6 transition-colors duration-300 data-[active=true]:border-transparent data-[active=true]:text-white sm:p-8"
+            className="group relative isolate min-h-80 gap-0 rounded-3xl p-6 text-base transition-[color,box-shadow] duration-300 data-[active=true]:text-white data-[active=true]:ring-transparent sm:p-8"
           >
             <Field
               palette="ember"
@@ -46,13 +48,12 @@ export function Audience() {
             <p className="mt-3 max-w-md text-[1.05rem] leading-relaxed text-pretty text-mute transition-colors group-data-[active=true]:text-white/85">
               {body}
             </p>
-            <a
-              href={site.getStartedUrl}
-              className="mt-7 inline-flex items-center gap-1.5 self-start font-medium underline-offset-4 hover:underline"
-            >
-              Get started free <ArrowRight className="size-4" />
-            </a>
-          </article>
+            <Button asChild variant="link" className="mt-7 h-auto self-start px-0 text-[0.95rem] text-current">
+              <a href={site.getStartedUrl}>
+                Get started free <ArrowRight />
+              </a>
+            </Button>
+          </Card>
         ))}
       </div>
     </section>
