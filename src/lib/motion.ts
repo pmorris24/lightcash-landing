@@ -75,6 +75,34 @@ export function mountMotion(root: ParentNode = document): () => void {
   html.dataset.motionReady = "true";
 
   const mm = gsap.matchMedia();
+
+  // Hero, tablet and up: scrolling first pins the hero and slides the dashboard up into view while the
+  // headline recedes; then the page scrolls on. The dashboard's resting place is the risen one (a
+  // negative margin pulls it up), and it starts pushed back down by the same distance, so no gap is left
+  // behind it. Created first so later ScrollTriggers account for the pin.
+  mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+    const hero = root.querySelector<HTMLElement>("[data-hero]");
+    const rise = hero?.querySelector("[data-rise]");
+    const copy = hero?.querySelector("[data-hero-copy]");
+    if (!hero || !rise || !copy) return;
+    const lift = () => window.innerHeight * 0.38;
+    gsap.set(rise, { marginTop: "-38vh" });
+    gsap
+      .timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: hero,
+          start: "top top",
+          end: () => `+=${window.innerHeight * 0.6}`,
+          pin: true,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
+      })
+      .fromTo(rise, { y: lift }, { y: 0 }, 0)
+      .to(copy, { y: () => -window.innerHeight * 0.1, scale: 0.97, autoAlpha: 0, duration: 0.75 }, 0);
+  });
+
   mm.add("(prefers-reduced-motion: no-preference)", () => {
     const q = <T extends Element = HTMLElement>(selector: string) => Array.from(root.querySelectorAll<T & HTMLElement>(selector));
     const intro = (name: string) => root.querySelector<HTMLElement>(`[data-intro="${name}"]`);

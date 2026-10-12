@@ -8,7 +8,7 @@ import { nav, site } from "@/lib/site";
 
 export function Hero() {
   return (
-    <div className="p-2 sm:p-3">
+    <div data-hero className="p-2 sm:p-3">
       <header className="relative isolate overflow-hidden rounded-[22px] sm:rounded-[28px]">
         <Field palette="dusk" className="-z-10" />
 
@@ -39,7 +39,7 @@ export function Hero() {
           </div>
         </nav>
 
-        <div className="flex flex-col items-center px-4 pt-14 text-center sm:pt-20">
+        <div data-hero-copy className="flex flex-col items-center px-4 pt-14 text-center sm:pt-20">
           <h1
             data-intro="title"
             className="font-display text-[clamp(3rem,8.4vw,6rem)] leading-[0.95] tracking-[-0.04em] text-balance"
@@ -69,14 +69,17 @@ export function Hero() {
           </p>
         </div>
 
-        <div data-intro="product" className="relative mx-auto mt-14 w-full max-w-5xl px-3 sm:mt-16 sm:px-8">
-          <DashboardMock className="[mask-image:linear-gradient(to_bottom,black_45%,transparent_80%)]" />
-        </div>
+        {/* Scrolling first slides this up into view while the hero is pinned (motion.ts). */}
+        <div data-rise className="relative">
+          <div data-intro="product" className="relative mx-auto mt-14 w-full max-w-5xl px-3 sm:mt-16 sm:px-8">
+            <DashboardMock className="[mask-image:linear-gradient(to_bottom,black_45%,transparent_80%)]" />
+          </div>
 
-        <div data-intro="logos" className="relative -mt-20 pb-12 text-center text-white sm:-mt-28 sm:pb-16">
-          <p className="px-4 text-[0.95rem] text-white/85">Connects to the tools you already use:</p>
-          <div className="mt-6 text-white/95">
-            <IntegrationsMarquee />
+          <div data-intro="logos" className="relative -mt-20 pb-12 text-center text-white sm:-mt-28 sm:pb-16">
+            <p className="px-4 text-[0.95rem] text-white/85">Connects to the tools you already use:</p>
+            <div className="mt-6 text-white/95">
+              <IntegrationsMarquee />
+            </div>
           </div>
         </div>
       </header>
