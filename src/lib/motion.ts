@@ -5,7 +5,7 @@
  *
  * Elements opt in with data attributes. An inline script in the layout hides the intro, split and reveal
  * elements (html.motion) until this runs, so nothing flashes before it animates in:
- *   data-intro="nav|title|copy|actions|tagline|product"  hero, played once on load
+ *   data-intro="nav|title|copy|actions|tagline|product|logos"  hero, played once on load
  *   data-split   heading whose words rise out of a mask when it scrolls into view
  *   data-reveal  block that fades up when it scrolls into view (batched, so a list staggers)
  *   data-count   number that counts up from zero, keeping its prefix, separators and decimals
@@ -86,7 +86,8 @@ export function mountMotion(root: ParentNode = document): () => void {
       .fromTo(intro("copy"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0 }, 0.75)
       .fromTo(intro("actions"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0 }, 0.85)
       .fromTo(intro("tagline"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.8 }, 1.0)
-      .fromTo(intro("product"), { autoAlpha: 0, y: 90, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 1.6 }, 0.9);
+      .fromTo(intro("product"), { autoAlpha: 0, y: 90, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 1.6 }, 0.9)
+      .fromTo(intro("logos"), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0 }, 1.2);
     const title = intro("title");
     if (title) riseWords(title, { delay: 0.15, stagger: 0.07, duration: 1.3 });
 

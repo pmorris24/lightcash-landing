@@ -1,6 +1,7 @@
 import { DashboardMock } from "@/components/dashboard-mock";
 import { Field } from "@/components/field";
 import { ArrowRight, SignIn } from "@/components/icons";
+import { IntegrationsMarquee } from "@/components/integrations-marquee";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { nav, site } from "@/lib/site";
@@ -68,8 +69,15 @@ export function Hero() {
           </p>
         </div>
 
-        <div data-intro="product" className="relative mx-auto mt-14 w-full max-w-5xl px-3 pb-10 sm:mt-16 sm:px-8 sm:pb-14">
-          <DashboardMock className="[mask-image:linear-gradient(to_bottom,black_55%,transparent_96%)]" />
+        <div data-intro="product" className="relative mx-auto mt-14 w-full max-w-5xl px-3 sm:mt-16 sm:px-8">
+          <DashboardMock className="[mask-image:linear-gradient(to_bottom,black_45%,transparent_80%)]" />
+        </div>
+
+        <div data-intro="logos" className="relative -mt-20 pb-12 text-center text-white sm:-mt-28 sm:pb-16">
+          <p className="px-4 text-[0.95rem] text-white/85">Connects to the tools you already use:</p>
+          <div className="mt-6 text-white/95">
+            <IntegrationsMarquee />
+          </div>
         </div>
       </header>
     </div>

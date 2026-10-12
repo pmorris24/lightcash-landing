@@ -30,6 +30,13 @@
   --color-glass: rgb(26 21 23 / 0.7);
 
   --animate-dot: dot 1.4s ease-in-out infinite;
+  --animate-marquee: marquee 32s linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 
   @keyframes dot {
     0%,
