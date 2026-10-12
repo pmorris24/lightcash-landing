@@ -19,9 +19,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lightcash",
+  title: "Lightcash · Your finances, at the speed of light",
   description:
-    "Live cash, projections and reports for small business owners and solo builders. No bookkeeper wait, no spreadsheets.",
+    "Lightcash gives you a live view of your cash, sensible projections of where you’re heading, and every report you need, without a bookkeeper in the loop.",
 };
 
 // Hides the animated elements before first paint (see html.motion in globals.css). If the motion code

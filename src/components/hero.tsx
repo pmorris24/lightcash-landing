@@ -5,9 +5,6 @@ import { Logo } from "@/components/logo";
 import { ButtonLink } from "@/components/ui";
 import { nav, site } from "@/lib/site";
 
-// TODO: confirm this list matches the integrations that ship at launch.
-const integrations = ["Stripe", "QuickBooks", "Xero", "Shopify", "Gusto", "Plaid"];
-
 export function Hero() {
   return (
     <div className="p-2 sm:p-3">
@@ -37,53 +34,43 @@ export function Hero() {
               <SignIn className="size-4" />
             </a>
             <a
-              href={site.earlyAccessUrl}
-              className="inline-flex h-10 items-center rounded-full bg-ink px-4 text-sm font-medium text-paper hover:bg-ink-soft"
+              href={site.getStartedUrl}
+              className="inline-flex h-10 items-center rounded-full bg-ink px-4 text-sm font-medium text-paper transition-colors hover:bg-ink-soft"
             >
-              Get early access
+              Get started free
             </a>
           </div>
         </nav>
 
-        <div className="flex flex-col items-center px-4 pt-10 text-center sm:pt-14">
-          <p data-intro="badge" className="inline-flex items-center gap-2 rounded-full bg-white/85 p-1 text-xs whitespace-nowrap shadow-sm backdrop-blur sm:pr-3">
-            <span className="rounded-full bg-ink px-2.5 py-1 font-medium text-paper">Launching today</span>
-            <span className="hidden font-mono text-[0.72rem] text-ink-soft sm:inline">Live cash · projections · reports</span>
-          </p>
-
-          <h1 data-intro="title" className="mt-7 font-display text-[clamp(3.1rem,9vw,6.4rem)] leading-[0.92] tracking-[-0.035em] text-balance">
-            Know your cash.
+        <div className="flex flex-col items-center px-4 pt-14 text-center sm:pt-20">
+          <h1
+            data-intro="title"
+            className="font-display text-[clamp(3rem,8.4vw,6rem)] leading-[0.95] tracking-[-0.04em] text-balance"
+          >
+            Your finances,
             <br />
-            See what’s next.
+            at the speed <span className="whitespace-nowrap">of light.</span>
           </h1>
-          <p data-intro="copy" className="mt-6 max-w-md text-[1.05rem] leading-relaxed text-ink-soft">
-            Lightcash connects your bank, payments and accounting tools, then keeps a live picture of your
-            finances. No bookkeeper wait, no spreadsheets.
+          <p data-intro="copy" className="mt-7 max-w-xl text-[1.1rem] leading-relaxed text-balance text-ink-soft">
+            Lightcash gives you a live view of your cash, sensible projections of where you’re heading, and every
+            report you need, without a bookkeeper in the loop.
           </p>
 
-          <div data-intro="actions" className="mt-8 flex flex-wrap justify-center gap-2.5">
-            <ButtonLink href={site.earlyAccessUrl} arrow>
-              Get free early access
+          <div data-intro="actions" className="mt-9 flex flex-wrap justify-center gap-2.5">
+            <ButtonLink href={site.getStartedUrl} arrow>
+              Get started free
             </ButtonLink>
-            <ButtonLink href={site.bookCallUrl} variant="light">
-              Book a call
+            <ButtonLink href="#how-it-works" variant="light">
+              See how it works
             </ButtonLink>
           </div>
+          <p data-intro="tagline" className="mt-5 text-sm text-ink-soft">
+            {site.tagline}
+          </p>
         </div>
 
-        <div data-intro="product" className="relative mx-auto mt-14 w-full max-w-5xl px-3 sm:mt-16 sm:px-8">
-          <DashboardMock className="[mask-image:linear-gradient(to_bottom,black_45%,transparent_80%)]" />
-        </div>
-
-        <div data-intro="logos" className="relative -mt-20 px-4 pb-12 text-center text-white sm:-mt-28 sm:pb-16">
-          <p className="text-[0.95rem] text-white/85">Connects to the tools you already use:</p>
-          <ul className="mx-auto mt-6 flex max-w-4xl flex-wrap items-center justify-center gap-x-10 gap-y-4 sm:gap-x-14">
-            {integrations.map((name) => (
-              <li key={name} className="text-[1.45rem] font-semibold tracking-[-0.03em] text-white/95 sm:text-[1.75rem]">
-                {name}
-              </li>
-            ))}
-          </ul>
+        <div data-intro="product" className="relative mx-auto mt-14 w-full max-w-5xl px-3 pb-10 sm:mt-16 sm:px-8 sm:pb-14">
+          <DashboardMock className="[mask-image:linear-gradient(to_bottom,black_55%,transparent_96%)]" />
         </div>
       </header>
     </div>

@@ -1,7 +1,7 @@
 /**
  * Progressive enhancement for the static page. The markup is complete without it;
  * this adds the animated gradient + ASCII fields (which react to the cursor), the persona switcher,
- * the early-access form and the page motion in src/lib/motion.ts.
+ * the sign-up form and the page motion in src/lib/motion.ts.
  *
  * It is plain DOM code so the same module runs inside Next.js (via <Enhancer />)
  * and in the single-file preview that scripts/build-preview.mjs bundles.
@@ -135,7 +135,8 @@ function hash(x: number, y: number) {
 
 /**
  * Tracks the cursor over a field's panel: a smoothed pointer with a strength that fades in and out,
- * a short trail of recent positions and click ripples. `influence` reads all three for one cell.
+ * a short trail of recent positions and click ripples. A "field:sweep" event on the field sends a beam
+ * of light across it (the hero plays one as its headline lands). `influence` reads all of these for one cell.
  */
 function createStir(panel: HTMLElement, host: HTMLElement, getCell: () => number, onActive: () => void) {
   const pointer = { x: 0, y: 0, power: 0 };
@@ -143,7 +144,17 @@ function createStir(panel: HTMLElement, host: HTMLElement, getCell: () => number
   const moveY = gsap.quickTo(pointer, "y", { duration: 0.3, ease: "power3" });
   const trail: Mark[] = [];
   const ripples: Mark[] = [];
+  const beam = { x: 0, power: 0 };
   const seconds = () => performance.now() / 1000;
+
+  const onSweep = () => {
+    const reach = getCell() * REACH;
+    gsap
+      .timeline({ onUpdate: onActive })
+      .set(beam, { x: -reach * 2, power: 1 })
+      .to(beam, { x: host.clientWidth + reach * 2, duration: 1.5, ease: "power2.inOut" })
+      .to(beam, { power: 0, duration: 0.3 }, "-=0.3");
+  };
 
   const local = (event: PointerEvent) => {
     const rect = host.getBoundingClientRect();
@@ -181,13 +192,14 @@ function createStir(panel: HTMLElement, host: HTMLElement, getCell: () => number
   panel.addEventListener("pointermove", onMove, { passive: true });
   panel.addEventListener("pointerleave", onLeave);
   panel.addEventListener("pointerdown", onDown, { passive: true });
+  host.addEventListener("field:sweep", onSweep);
 
   return {
     /** True while anything is still animating, so the field keeps redrawing every frame. */
     active(t: number) {
       while (trail.length && t - trail[0].born > TRAIL_LIFE) trail.shift();
       while (ripples.length && t - ripples[0].born > RIPPLE_LIFE) ripples.shift();
-      return pointer.power > 0.002 || trail.length > 0 || ripples.length > 0;
+      return pointer.power > 0.002 || beam.power > 0 || trail.length > 0 || ripples.length > 0;
     },
     /** 0–1 strength of the cursor's effect at (x, y), plus the direction to push the glyph. */
     influence(x: number, y: number, t: number, cell: number, out: number[]) {
@@ -221,6 +233,16 @@ function createStir(panel: HTMLElement, host: HTMLElement, getCell: () => number
           py = dy;
         }
       }
+      if (beam.power > 0) {
+        // A slanted band of light moving left to right; glyphs in it are pushed along with it.
+        const band = (x - beam.x - y * 0.35) / (cell * 4);
+        const w = beam.power * Math.exp(-band * band);
+        if (w > f) {
+          f = w;
+          px = 1;
+          py = 0;
+        }
+      }
       const len = Math.hypot(px, py) || 1;
       out[0] = Math.min(1, f);
       out[1] = px / len;
@@ -231,7 +253,8 @@ function createStir(panel: HTMLElement, host: HTMLElement, getCell: () => number
       panel.removeEventListener("pointermove", onMove);
       panel.removeEventListener("pointerleave", onLeave);
       panel.removeEventListener("pointerdown", onDown);
-      gsap.killTweensOf(pointer);
+      host.removeEventListener("field:sweep", onSweep);
+      gsap.killTweensOf([pointer, beam]);
     },
   };
 }
@@ -382,26 +405,26 @@ function mountField(host: HTMLElement): () => void {
   };
 }
 
-/** Persona switcher: a button with data-select="x" activates the card with data-option="x". */
+/** Audience cards: pointing at or focusing a card with data-option="x" makes it the active one. */
 function mountSwitcher(root: HTMLElement): () => void {
-  const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-select]"));
   const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-option]"));
 
-  const select = (id: string) => {
-    buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.select === id)));
-    cards.forEach((card) => card.setAttribute("data-active", String(card.dataset.option === id)));
+  const onEnter = (event: Event) => {
+    const card = (event.target as Element).closest<HTMLElement>("[data-option]");
+    if (!card || card.dataset.active === "true") return;
+    cards.forEach((c) => c.setAttribute("data-active", String(c === card)));
   };
-
-  const onClick = (event: Event) => {
-    const button = (event.target as Element).closest<HTMLButtonElement>("[data-select]");
-    if (button?.dataset.select) select(button.dataset.select);
+  // pointerover bubbles (pointerenter does not), so one listener on the container covers every card.
+  root.addEventListener("pointerover", onEnter);
+  root.addEventListener("focusin", onEnter);
+  return () => {
+    root.removeEventListener("pointerover", onEnter);
+    root.removeEventListener("focusin", onEnter);
   };
-  root.addEventListener("click", onClick);
-  return () => root.removeEventListener("click", onClick);
 }
 
 /**
- * Early-access form: validates the email, posts the fields as JSON to the form's action and swaps in
+ * Sign-up form: validates the email, posts the fields as JSON to the form's action and swaps in
  * the success panel. With no action set (no endpoint configured) it says sign-ups open soon.
  */
 function mountSignup(form: HTMLFormElement): () => void {
@@ -426,7 +449,7 @@ function mountSignup(form: HTMLFormElement): () => void {
   };
 
   const showDone = () => {
-    if (!done) return say("You’re on the list. We will email you when your early access is ready.");
+    if (!done) return say("You’re in. We’ll email you to get your accounts connected.");
     const swap = () => {
       form.hidden = true;
       done.hidden = false;
@@ -458,7 +481,7 @@ function mountSignup(form: HTMLFormElement): () => void {
     if (!email) return;
     if (!email.checkValidity()) {
       email.setAttribute("aria-invalid", "true");
-      say(email.value ? "That email doesn’t look right. Check it and try again." : "Enter your email to get early access.");
+      say(email.value ? "That email doesn’t look right. Check it and try again." : "Enter your email to get started.");
       email.focus();
       shake();
       return;
@@ -491,9 +514,9 @@ function mountSignup(form: HTMLFormElement): () => void {
     }
   };
 
-  // "Get early access" links scroll here; put the cursor in the email field on desktop.
+  // "Get started free" links scroll here; put the cursor in the email field on desktop.
   const onAnchor = (event: Event) => {
-    const link = (event.target as Element).closest('a[href="#early-access"]');
+    const link = (event.target as Element).closest('a[href="#get-started"]');
     if (link && email && !form.hidden && window.matchMedia("(pointer: fine)").matches) {
       email.focus({ preventScroll: true });
     }

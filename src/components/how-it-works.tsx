@@ -1,184 +1,150 @@
 import type { ReactNode } from "react";
-import { ArrowLeft, Calendar, Check, ChevronDown, Diamond, List } from "@/components/icons";
-import { LogoMark } from "@/components/logo";
-import { Mute, Pill, SectionHeading, StepNumber } from "@/components/ui";
+import { CashChart } from "@/components/cash-chart";
+import { Check } from "@/components/icons";
+import { SectionHeading, StepNumber } from "@/components/ui";
 import { wrap } from "@/lib/site";
 
-function Step({ n, title, children }: { n: string; title: string; children: ReactNode }) {
+// Example data for the step visuals.
+const accounts = [
+  { name: "Chase Business", detail: "Bank ··4821", connected: true },
+  { name: "Amex Business Gold", detail: "Card ··1003", connected: true },
+  { name: "Stripe", detail: "Payments", connected: false },
+];
+
+const feed = [
+  { what: "Stripe payout", category: "Income", amount: "+$6,940.20", when: "Just now", income: true },
+  { what: "AWS", category: "Software & hosting", amount: "−$1,240.00", when: "4 min ago" },
+  { what: "Figma", category: "Software & hosting", amount: "−$75.00", when: "1 hr ago" },
+  { what: "Acme Co. invoice", category: "Income", amount: "+$4,800.00", when: "Today", income: true },
+];
+
+/** 4×3 dot grid that pulses left to right, like a scanner. */
+function DotLoader() {
   return (
-    <div data-reveal className="min-w-0">
-      <StepNumber n={n} />
-      <h3 className="mt-8 text-[1.6rem] leading-tight tracking-[-0.02em] text-balance">{title}</h3>
-      <p className="mt-4 max-w-sm leading-relaxed text-mute">{children}</p>
+    <span className="grid shrink-0 grid-cols-4 gap-0.5" aria-hidden="true">
+      {Array.from({ length: 12 }, (_, i) => (
+        <span
+          key={i}
+          className="size-1 rounded-[1px] bg-peri-deep animate-dot"
+          style={{ animationDelay: `${(i % 4) * 0.18 + Math.floor(i / 4) * 0.06}s` }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function Visual({ children, label }: { children: ReactNode; label: string }) {
+  return (
+    <div role="img" aria-label={label} className="dashed flex h-72 flex-col justify-center overflow-hidden rounded-3xl bg-cloud/60 p-4 sm:p-5">
+      {children}
     </div>
   );
 }
 
-function Snippet({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div data-reveal className={`dashed min-w-0 rounded-3xl bg-cloud/60 p-4 sm:p-5 ${className}`}>{children}</div>;
-}
-
-function StatusChip({ children, tone = "good" }: { children: ReactNode; tone?: "good" | "warn" | "plain" }) {
-  const tones = {
-    good: "bg-good-soft text-good",
-    warn: "bg-warn-soft text-warn",
-    plain: "bg-cloud text-ink-soft border border-line",
-  };
+function Step({ n, title, visual, children }: { n: string; title: string; visual: ReactNode; children: ReactNode }) {
   return (
-    <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${tones[tone]}`}>
-      {tone === "good" && <Check className="size-3" />}
-      {children}
-    </span>
-  );
-}
-
-function AgentAvatar() {
-  return (
-    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-ink text-paper">
-      <LogoMark className="size-3.5" />
-    </span>
+    <li data-reveal className="flex min-w-0 flex-col">
+      {visual}
+      <div className="mt-8 flex items-start gap-5">
+        <StepNumber n={n} />
+        <div className="min-w-0 pt-1">
+          <h3 className="text-[1.45rem] leading-tight tracking-[-0.02em]">{title}</h3>
+          <p className="mt-2.5 leading-relaxed text-pretty text-mute">{children}</p>
+        </div>
+      </div>
+    </li>
   );
 }
 
 export function HowItWorks() {
   return (
     <section id="how-it-works" className={`${wrap} scroll-mt-6 pb-24 sm:pb-32`}>
-      <div className="flex flex-col items-center text-center">
-        <Pill>How it works</Pill>
-        <SectionHeading className="mt-5 max-w-3xl">
-          From <Mute>Transactions</Mute> To Decisions, Automatically
-        </SectionHeading>
-        <p data-reveal className="mt-5 max-w-xl leading-relaxed text-mute">
-          Lightcash pulls in every transaction, sorts it and keeps your numbers current. You always know where you
-          stand, without manual bookkeeping.
-        </p>
-      </div>
+      <SectionHeading className="max-w-3xl">Up and running in minutes.</SectionHeading>
 
-      <div className="mt-16 grid gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
-        {/* Today's cash */}
-        <Snippet>
-          <ArrowLeft className="size-4 text-ink-soft" />
-          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-ink-soft">
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar className="size-4" /> Oct 12, 2026 <ChevronDown className="size-3.5" />
-            </span>
-            <span>All accounts</span>
-          </div>
-          <p className="mt-2 text-lg">Today’s Cash</p>
-          <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-good-soft px-2.5 py-0.5 text-xs font-medium text-good">
-            <span className="size-2 rounded-full bg-good" /> Syncing live
-          </span>
-          <div className="mt-3 rounded-2xl border border-line bg-paper p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-medium">Chase Business ··4821</p>
-                <p className="text-sm text-mute">Checking</p>
-              </div>
-              <StatusChip>Synced</StatusChip>
-            </div>
-            <p className="mt-4 flex items-baseline justify-between gap-3 text-sm text-mute">
-              Updated 2 min ago
-              <span className="text-lg font-medium text-ink tabular-nums">$48,210.55</span>
-            </p>
-          </div>
-          <div className="flex items-start justify-between gap-3 px-4 pt-4">
-            <div className="min-w-0">
-              <p className="font-medium">Stripe balance</p>
-              <p className="text-sm text-mute tabular-nums">$6,940.20 · payout Oct 14</p>
-            </div>
-            <StatusChip tone="plain">Scheduled</StatusChip>
-          </div>
-        </Snippet>
-
-        <div className="flex flex-col">
-          <Step n="01" title="Connects To Your Accounts In Minutes">
-            Link your bank, cards, Stripe and payroll once. Lightcash keeps every balance and transaction in sync from
-            then on.
-          </Step>
-          <div data-reveal className="mt-8 flex items-center gap-3 lg:mt-auto">
-            <span className="grid size-8 place-items-center rounded-full bg-good text-paper">
-              <Check className="size-4" />
-            </span>
-            <span className="leading-tight">
-              <span className="block font-medium">Connected</span>
-              <span className="block text-sm text-mute">4 accounts syncing</span>
-            </span>
-          </div>
-          <ul data-reveal className="mt-4 flex flex-wrap gap-2 text-sm">
-            {["Chase", "Stripe", "Gusto", "QuickBooks"].map((name) => (
-              <li key={name} className="rounded-full border border-line bg-paper px-3 py-1.5 shadow-sm">
-                {name}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="flex flex-col">
-          <Step n="02" title="Sorts Every Transaction For You">
-            The Lightcash agent categorizes spending, matches invoices to payments and flags anything it is not sure
-            about.
-          </Step>
-          <Snippet className="mt-8 lg:mt-auto">
-            <div className="flex items-center gap-2">
-              <AgentAvatar />
-              <span className="font-medium">Lightcash agent</span>
-              <ChevronDown className="size-3.5 text-mute" />
-              <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-ink px-2.5 py-0.5 text-xs text-paper">
-                <Check className="size-3" /> Categorized
-              </span>
-            </div>
-            <p className="mt-4 flex items-baseline justify-between gap-3 text-[0.95rem]">
-              <span className="underline decoration-mute/60 underline-offset-4">AWS · $1,240 → Software &amp; hosting</span>
-              <span className="shrink-0 font-mono text-sm text-peri-deep">just now</span>
-            </p>
-          </Snippet>
-        </div>
-
-        {/* Weekly summary */}
-        <Snippet>
-          <ArrowLeft className="size-4 text-ink-soft" />
-          <p className="mt-4 text-lg">Weekly Summary</p>
-          <p className="mt-4 flex items-center gap-2.5 font-medium">
-            <Diamond className="size-4" /> Week of Oct 6 to Oct 12
-          </p>
-          <ul className="mt-3 grid list-disc gap-2 pl-12 text-[0.95rem] text-ink-soft marker:text-mute">
-            <li>Revenue is up 8% on last week</li>
-            <li>Software costs are $2,310, with 3 renewals next week</li>
-            <li>Payroll on Oct 15 is covered, with a $21k buffer</li>
-          </ul>
-        </Snippet>
-
-        {/* Needs review */}
-        <Snippet>
-          <ArrowLeft className="size-4 text-ink-soft" />
-          <p className="mt-4 flex items-center gap-2 text-lg">
-            Needs Your Review <span className="text-mute">(2)</span>
-          </p>
-          <div className="mt-4 grid gap-3">
-            {[
-              { who: "Lightcash agent", what: "Approve 3 uncategorized expenses" },
-              { who: "Tax set-aside", what: "Move $4,800 to tax savings" },
-            ].map((item) => (
-              <div key={item.what} className="rounded-2xl border border-line bg-paper p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <AgentAvatar />
-                    <span className="truncate font-medium">{item.who}</span>
-                  </span>
-                  <StatusChip tone="warn">Suggested</StatusChip>
-                </div>
-                <p className="mt-2 flex items-center gap-2 pl-1 text-sm text-ink-soft">
-                  <List className="size-3.5 text-mute" /> {item.what}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Snippet>
-
-        <Step n="03" title="Projects Where You’ll Be Next Month">
-          Projections use your real income, bills and payroll dates, so you see a cash dip weeks before it happens.
+      <ol className="mt-14 grid gap-x-6 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
+        <Step
+          n="1"
+          title="Connect your accounts"
+          visual={
+            <Visual label="A business bank account and a card connected, and Stripe connecting.">
+              <ul className="grid gap-2.5">
+                {accounts.map((a) => (
+                  <li key={a.name} className="flex items-center gap-3 rounded-2xl border border-line bg-paper px-4 py-3">
+                    <span className="min-w-0 flex-1 leading-tight">
+                      <span className="block truncate font-medium">{a.name}</span>
+                      <span className="block text-sm text-mute">{a.detail}</span>
+                    </span>
+                    {a.connected ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-good-soft px-2.5 py-0.5 text-xs font-medium text-good">
+                        <Check className="size-3" /> Connected
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 rounded-full border border-line px-2.5 py-1 text-xs font-medium text-ink-soft">
+                        <DotLoader /> Connecting
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </Visual>
+          }
+        >
+          Link your bank, cards and payment tools in a few clicks.
         </Step>
-      </div>
+
+        <Step
+          n="2"
+          title="See everything, live"
+          visual={
+            <Visual label="Transactions arriving as they happen, each one already categorized.">
+              <div className="flex items-center justify-between px-1 text-sm">
+                <span className="font-medium">Transactions</span>
+                <span className="inline-flex items-center gap-1.5 text-good">
+                  <span className="size-2 rounded-full bg-good" /> Live
+                </span>
+              </div>
+              <ul className="mt-3 overflow-hidden rounded-2xl border border-line bg-paper">
+                {feed.map((t, i) => (
+                  <li
+                    key={t.what}
+                    data-feed
+                    className={`flex items-center gap-3 px-4 py-2.5 ${i ? "border-t border-line" : ""}`}
+                  >
+                    <span className="min-w-0 flex-1 leading-tight">
+                      <span className="block truncate text-[0.92rem] font-medium">{t.what}</span>
+                      <span className="block truncate text-xs text-mute">{t.category}</span>
+                    </span>
+                    <span className="text-right leading-tight">
+                      <span className={`block text-[0.92rem] tabular-nums ${t.income ? "text-good" : ""}`}>{t.amount}</span>
+                      <span className="block text-xs text-mute">{t.when}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Visual>
+          }
+        >
+          Every transaction lands as it happens, organized and categorized automatically.
+        </Step>
+
+        <Step
+          n="3"
+          title="Look ahead"
+          visual={
+            <Visual label="A cash projection for the next three months, with a likely range.">
+              <div className="flex items-center justify-between px-1 text-sm">
+                <span className="font-medium">Cash projection</span>
+                <span className="text-mute">Next 90 days</span>
+              </div>
+              <div className="mt-3 rounded-2xl border border-line bg-paper p-2">
+                <CashChart compact draw />
+              </div>
+            </Visual>
+          }
+        >
+          Projections built from your real patterns show where your cash will be next month and next quarter.
+        </Step>
+      </ol>
     </section>
   );
 }

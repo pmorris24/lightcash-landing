@@ -1,12 +1,11 @@
 export const site = {
   name: "Lightcash",
-  // Every "Get early access" button scrolls to the sign-up form in the closing call to action.
-  earlyAccessUrl: "#early-access",
-  // TODO: point this at the real booking page (Cal.com, Calendly).
-  bookCallUrl: "#early-access",
+  tagline: "Built for solo builders and small businesses.",
+  // Every "Get started free" button scrolls to the sign-up form in the closing call to action.
+  getStartedUrl: "#get-started",
   signInUrl: "#",
   /**
-   * Where the early-access form sends sign-ups: any endpoint that accepts a JSON POST, such as a
+   * Where the sign-up form sends sign-ups: any endpoint that accepts a JSON POST, such as a
    * Formspree form URL (https://formspree.io/f/<id>). The body is { name, email, role, source }.
    * TODO: set this. While it is empty the form tells visitors sign-ups open soon and collects nothing.
    */
@@ -14,10 +13,10 @@ export const site = {
 };
 
 export const nav = [
-  { label: "Product", href: "#product" },
   { label: "How it works", href: "#how-it-works" },
-  { label: "Agent", href: "#agent" },
-  { label: "Early access", href: "#early-access" },
+  { label: "Features", href: "#features" },
+  { label: "Who it’s for", href: "#who-its-for" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 /** Shared page gutter and max width. */

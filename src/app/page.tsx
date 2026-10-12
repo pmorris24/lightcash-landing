@@ -1,23 +1,25 @@
-import { AfterSync } from "@/components/after-sync";
-import { AgentShowcase } from "@/components/agent-showcase";
+import { Audience } from "@/components/audience";
 import { Enhancer } from "@/components/enhancer";
+import { Faq } from "@/components/faq";
+import { Features } from "@/components/features";
 import { FinalCta } from "@/components/final-cta";
-import { GetSave } from "@/components/get-save";
 import { Hero } from "@/components/hero";
 import { HowItWorks } from "@/components/how-it-works";
-import { Personas } from "@/components/personas";
+import { Problem } from "@/components/problem";
 import { SiteFooter } from "@/components/site-footer";
+import { Testimonial } from "@/components/testimonial";
 
 export default function Home() {
   return (
     <>
       <Hero />
       <main>
-        <Personas />
+        <Problem />
         <HowItWorks />
-        <AgentShowcase />
-        <AfterSync />
-        <GetSave />
+        <Features />
+        <Audience />
+        <Testimonial />
+        <Faq />
         <FinalCta />
       </main>
       <SiteFooter />

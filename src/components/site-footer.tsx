@@ -1,12 +1,12 @@
 import { Logo } from "@/components/logo";
-import { nav, wrap } from "@/lib/site";
+import { nav, site, wrap } from "@/lib/site";
 
 export function SiteFooter() {
   return (
     <footer className={`${wrap} flex flex-col gap-6 border-t border-line py-10 sm:flex-row sm:items-center`}>
       <div>
         <Logo />
-        <p className="mt-2 text-sm text-mute">Live cash, projections and reports for small businesses.</p>
+        <p className="mt-2 text-sm text-mute">{site.tagline}</p>
       </div>
       <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-soft sm:ml-auto">
         {nav.map((item) => (

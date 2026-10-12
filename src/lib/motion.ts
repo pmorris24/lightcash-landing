@@ -1,12 +1,17 @@
 /**
- * Page motion: the hero intro, word-by-word heading reveals, scroll reveals and KPI count-ups.
+ * Page motion. The focal moment is the hero: the headline rises word by word and, as "at the speed of
+ * light" lands, a beam of light sweeps across the hero's ASCII field. Everything else is quieter and
+ * explains something: the lag timeline plays out, the projection draws in, a new transaction lands.
  *
- * Elements opt in with data attributes, and an inline script in the layout hides them (html.motion)
- * until this runs, so nothing flashes before it animates in:
- *   data-intro="nav|badge|title|copy|actions|product|logos"  hero, played once on load
+ * Elements opt in with data attributes. An inline script in the layout hides the intro, split and reveal
+ * elements (html.motion) until this runs, so nothing flashes before it animates in:
+ *   data-intro="nav|title|copy|actions|tagline|product"  hero, played once on load
  *   data-split   heading whose words rise out of a mask when it scrolls into view
- *   data-reveal  block that fades up when it scrolls into view (batched, so neighbours stagger)
+ *   data-reveal  block that fades up when it scrolls into view (batched, so a list staggers)
  *   data-count   number that counts up from zero, keeping its prefix, separators and decimals
+ *   data-lag     the problem section's two timelines (data-lag-line, data-moment="0–1")
+ *   data-draw    SVG clip rect that uncovers a chart's series left to right
+ *   data-feed    transaction rows; the first one arrives as a new transaction
  */
 
 import gsap from "gsap";
@@ -74,33 +79,61 @@ export function mountMotion(root: ParentNode = document): () => void {
     const q = <T extends Element = HTMLElement>(selector: string) => Array.from(root.querySelectorAll<T & HTMLElement>(selector));
     const intro = (name: string) => root.querySelector<HTMLElement>(`[data-intro="${name}"]`);
 
-    // Hero intro: nav and badge first, the headline rises word by word, then copy, buttons and product.
+    // Hero: nav, then the headline rises word by word while the beam crosses the field behind it.
     const tl = gsap.timeline({ defaults: { duration: 1.1, ease: EASE } });
     tl.fromTo(intro("nav"), { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0)
-      .fromTo(intro("badge"), { autoAlpha: 0, y: 16, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1 }, 0.1)
-      .fromTo(intro("copy"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0 }, 0.55)
-      .fromTo(intro("actions"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0 }, 0.65)
-      .fromTo(intro("product"), { autoAlpha: 0, y: 90, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 1.6 }, 0.7);
-    const logos = intro("logos");
-    if (logos) {
-      tl.fromTo(logos, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 1.0).from(
-        logos.querySelectorAll("li"),
-        { autoAlpha: 0, y: 18, stagger: 0.06, duration: 0.9 },
-        "<",
-      );
-    }
+      .call(() => root.querySelector("header [data-field]")?.dispatchEvent(new Event("field:sweep")), [], 0.7)
+      .fromTo(intro("copy"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0 }, 0.75)
+      .fromTo(intro("actions"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0 }, 0.85)
+      .fromTo(intro("tagline"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.8 }, 1.0)
+      .fromTo(intro("product"), { autoAlpha: 0, y: 90, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 1.6 }, 0.9);
     const title = intro("title");
-    if (title) riseWords(title, { delay: 0.2, stagger: 0.08, duration: 1.3 });
+    if (title) riseWords(title, { delay: 0.15, stagger: 0.07, duration: 1.3 });
 
-    // Headings further down rise into view as they are reached.
     q("[data-split]").forEach((el) => riseWords(el, { scrollTrigger: { trigger: el, start: "top 88%", once: true } }));
 
-    gsap.set(q("[data-reveal]"), { autoAlpha: 0, y: 32 });
+    gsap.set(q("[data-reveal]"), { autoAlpha: 0, y: 20 });
     ScrollTrigger.batch(q("[data-reveal]"), {
       start: "top 90%",
       once: true,
-      onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 1, ease: EASE, stagger: 0.09, overwrite: true }),
+      onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.9, ease: EASE, stagger: 0.1, overwrite: true }),
     });
+
+    // Problem: both lines draw on one clock; each moment lights up when its line reaches it.
+    q("[data-lag]").forEach((diagram) => {
+      const clock = 2.6;
+      const lag = gsap.timeline({ scrollTrigger: { trigger: diagram, start: "top 75%", once: true } });
+      lag.fromTo(diagram.querySelectorAll("[data-lag-line]"), { scaleX: 0 }, { scaleX: 1, duration: clock, ease: "none" }, 0);
+      diagram.querySelectorAll<HTMLElement>("[data-moment]").forEach((moment) => {
+        const at = Number(moment.dataset.moment) * clock;
+        lag
+          .fromTo(moment, { autoAlpha: 0.25 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }, at)
+          .fromTo(moment.firstElementChild, { scale: 0.4 }, { scale: 1, duration: 0.5, ease: "back.out(2)" }, at);
+      });
+    });
+
+    // How it works, step 3: the projection draws in from today.
+    q("[data-draw]").forEach((rect) => {
+      gsap.fromTo(
+        rect,
+        { attr: { width: 0 } },
+        {
+          attr: { width: rect.getAttribute("width") ?? 0 },
+          duration: 1.8,
+          ease: "power2.inOut",
+          scrollTrigger: { trigger: rect.closest("svg"), start: "top 80%", once: true },
+        },
+      );
+    });
+
+    // How it works, step 2: the newest transaction lands at the top of the feed.
+    const [newest] = q("[data-feed]");
+    if (newest) {
+      gsap
+        .timeline({ scrollTrigger: { trigger: newest, start: "top 80%", once: true }, delay: 0.4 })
+        .from(newest, { autoAlpha: 0, x: -14, duration: 0.6, ease: EASE })
+        .fromTo(newest, { backgroundColor: "rgb(230 246 236)" }, { backgroundColor: "rgb(230 246 236 / 0)", duration: 1.8 }, "<");
+    }
 
     const restoreCounts = q("[data-count]").map((el) => countUp(el, tl));
     return () => restoreCounts.forEach((restore) => restore());
